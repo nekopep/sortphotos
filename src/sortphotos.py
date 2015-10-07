@@ -297,7 +297,9 @@ def sortPhotos(src_dir, dest_dir, sort_format, rename_format, recursive=False,
 
     args += [src_dir]
 
-    ignore_list = ignore_list.split(',')
+    if ignore_list is not None:
+        ignore_list = ignore_list.split(',')
+
     print("Scanning for files matching:%s"%(ignore_list))
     # in recursive mode, if the user ask to remove ignored files we scan and remove them before running exiftool
     if recursive and remove_ignored_files and len(ignore_list) > 0:
@@ -354,15 +356,16 @@ def sortPhotos(src_dir, dest_dir, sort_format, rename_format, recursive=False,
             continue
 
         # filter ignored files and remove them if requested
-        for _filter in ignore_list:
-            if fnmatch.fnmatch(os.path.split(src_file)[-1], _filter):
-                if remove_ignored_files:
-                    print("file [%s] match filter [%s]: deleting." % (src_file, _filter))
-                    if not test:
-                        os.remove(src_file)
-                else:
-                    print("file [%s] match filter [%s]: ignoring." % (src_file, _filter))
-                continue
+        if ignore_list is not None:
+            for _filter in ignore_list:
+                if fnmatch.fnmatch(os.path.split(src_file)[-1], _filter):
+                    if remove_ignored_files:
+                        print("file [%s] match filter [%s]: deleting." % (src_file, _filter))
+                        if not test:
+                            os.remove(src_file)
+                    else:
+                        print("file [%s] match filter [%s]: ignoring." % (src_file, _filter))
+                    continue
 
         # ignore hidden files
         if os.path.basename(src_file).startswith('.'):
